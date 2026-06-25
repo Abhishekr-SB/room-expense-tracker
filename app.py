@@ -10,12 +10,12 @@ from dotenv import load_dotenv  # .env ഫയൽ വായിക്കാൻ ഇ
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses_v2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # 3 റൂംമേറ്റ്സിന്റെ പേരുകൾ
-ROOMMATES = ["രാഹുൽ", "അഖിൽ", "ജിതിൻ"]
+ROOMMATES = ["IVIN", "Anil", "Abhishek"]
 
 # Database Table
 class Expense(db.Model):
@@ -97,4 +97,41 @@ def index():
     shares = {name: 0.0 for name in ROOMMATES}
     for exp in monthly_expenses:
         if exp.paid_by in shares:
-            shares[exp.paid_by] += exp
+            shares[exp.paid_by] += exp.amount  # ⬅️ ഇവിടെയായിരുന്നു കോഡ് മുറിഞ്ഞുപോയത്!
+
+    # 2. ഒരാൾക്ക് വരുന്ന ശരാശരി ചിലവ് (Per Head Share)
+    per_head_share = monthly_total / len(ROOMMATES) if ROOMMATES else 0
+
+    # 3. സെറ്റിൽമെന്റ് കണക്കുകൂട്ടൽ (ആര് ആർക്ക് കൊടുക്കണം)
+    balances = {name: shares[name] - per_head_share for name in ROOMMATES}
+
+    settlements = []
+    creditors = {k: v for k, v in balances.items() if v > 0}
+    debtors = {k: -v for k, v in balances.items() if v < 0}
+
+    for d_name, d_amt in list(debtors.items()):
+        for c_name, c_amt in list(creditors.items()):
+            if d_amt <= 0 or c_amt <= 0:
+                continue
+            settle_amt = min(d_amt, c_amt)
+            settlements.append(f"{d_name} ➔ {c_name} നൽകണം: ₹{round(settle_amt, 2)}")
+            d_amt -= settle_amt
+            c_amt -= settle_amt
+            debtors[d_name] = d_amt
+            creditors[c_name] = c_amt
+
+    return render_template(
+        'index.html',
+        expenses=expenses,
+        monthly_total=round(monthly_total, 2),
+        total_all_time=round(total_all_time, 2),
+        roommates=ROOMMATES,
+        shares=shares,
+        per_head_share=round(per_head_share, 2),
+        settlements=settlements
+    )
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
