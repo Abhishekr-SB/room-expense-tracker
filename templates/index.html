@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>📊 AI Monthly Expense Tracker & Settler</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light p-4 p-md-5">
+    <div class="container bg-white p-4 rounded shadow" style="max-width: 850px;">
+        <h2 class="text-center mb-4">📊 AI Monthly Expense Tracker</h2>
+
+        <form method="POST" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label class="form-label font-weight-bold">Date</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Item Name</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g., Rice, Petrol" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Shop Name</label>
+                <input type="text" name="shop" class="form-control" placeholder="e.g., Lulu, Local Shop" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Paid By</label>
+                <select name="paid_by" class="form-select">
+                    {% for name in roommates %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Amount (₹)</label>
+                <input type="number" step="0.01" name="amount" class="form-control" placeholder="0.00" required>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Add Expense</button>
+            </div>
+        </form>
+
+        <div class="row text-center mb-4 g-2">
+            <div class="col-md-6">
+                <div class="p-3 bg-danger-subtle rounded text-danger">
+                    <h5>This Month's Total</h5>
+                    <h3>₹{{ monthly_total }}</h3>
+                    <small class="text-muted">Per Head Share: ₹{{ per_head_share }}</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 bg-secondary-subtle rounded text-secondary">
+                    <h5>All-Time Total</h5>
+                    <h3>₹{{ total_all_time }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-warning mb-4 bg-warning-subtle text-warning-emphasis">
+            <div class="card-header border-warning bg-warning text-white fw-bold">
+                🤝 Monthly Settlement (ആര് ആർക്ക് കൊടുക്കണം)
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    {% for name, spent in shares.items() %}
+                    <div class="col">
+                        <div class="bg-white p-2 rounded shadow-sm border">
+                            <span class="text-muted d-block" style="font-size: 0.85rem;">{{ name }}</span>
+                            <strong class="text-dark">₹{{ spent }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <h6 class="fw-bold mb-2 text-dark" style="font-size: 0.9rem;">Calculated Settlement:</h6>
+                {% if settlements %}
+                    <ul class="list-group">
+                        {% for settlement in settlements %}
+                            <li class="list-group-style border-start border-4 border-warning list-group-item py-2 bg-white text-dark fw-medium mb-1 rounded shadow-sm">
+                                🔹 {{ settlement }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-success fw-bold mb-0" style="font-size: 0.9rem;">Everyone is settled equally! No dues.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <h5 class="mb-3">Expense History</h5>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Item & (AI Purpose)</th>
+                        <th>Shop</th>
+                        <th>Paid By</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td class="text-nowrap">{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                        <td class="fw-medium">{{ expense.title }}</td>
+                        <td class="text-muted">{{ expense.shop }}</td>
+                        <td><span class="badge bg-info text-dark">{{ expense.paid_by }}</span></td>
+                        <td class="text-end text-danger fw-bold">₹{{ expense.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
