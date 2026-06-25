@@ -97,4 +97,4 @@ def index():
     shares = {name: 0.0 for name in ROOMMATES}
     for exp in monthly_expenses:
         if exp.paid_by in shares:
-            shares[exp.paid_by] += exp.
+            shares[exp.paid_by] += exp
