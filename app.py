@@ -20,7 +20,7 @@ def create_tables():
     db.create_all()
 
 # 3 റൂംമേറ്റ്സിന്റെ പേരുകൾ
-ROOMMATES = ["രാഹുൽ", "അഖിൽ", "ജിതിൻ"]
+ROOMMATES = ["IVIN", "ABHISHEK", "ANIL"]
 
 # Database Table
 class Expense(db.Model):
