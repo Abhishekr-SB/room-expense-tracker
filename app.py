@@ -14,8 +14,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses_v2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ⬇️ ഈ രണ്ട് വരികൾ ഇവിടെയാണ് കൃത്യമായി ചേർക്കേണ്ടത്
-with app.app_context():
+# ⬇️ പഴയ 'with app.app_context()' മാറ്റി പകരം ഈ ഒരു ഫങ്ക്ഷൻ കൊടുക്കുക
+@app.before_request
+def create_tables():
     db.create_all()
 
 # 3 റൂംമേറ്റ്സിന്റെ പേരുകൾ
