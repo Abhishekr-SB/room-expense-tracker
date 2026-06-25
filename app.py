@@ -10,12 +10,16 @@ from dotenv import load_dotenv  # .env ഫയൽ വായിക്കാൻ ഇ
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses_v2.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# ⬇️ ഈ രണ്ട് വരികൾ ഇവിടെയാണ് കൃത്യമായി ചേർക്കേണ്ടത്
+with app.app_context():
+    db.create_all()
+
 # 3 റൂംമേറ്റ്സിന്റെ പേരുകൾ
-ROOMMATES = ["IVIN", "Anil", "Abhishek"]
+ROOMMATES = ["രാഹുൽ", "അഖിൽ", "ജിതിൻ"]
 
 # Database Table
 class Expense(db.Model):
